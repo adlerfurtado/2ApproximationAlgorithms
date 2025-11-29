@@ -1,73 +1,100 @@
-Este projeto implementa e compara algoritmos de agrupamento (clustering):
+# 2-Approximation Algorithms for Clustering
 
-Algoritmo de Gonzalez (Farthest-First): Algoritmo 2-aproximado guloso
-Refinamento de Intervalo: Algoritmo 2-aproximado com busca binária
-K-Means: Algoritmo clássico (baseline)
+Este projeto implementa e compara diferentes algoritmos de **agrupamento (clustering)**, com foco em K-Centros e K-Means, incluindo métodos aproximados com garantias teóricas.
 
-Métricas de Distância Implementadas
+---
 
-Minkowski (p=1: Manhattan, p=2: Euclidiana)
-Mahalanobis
+## Algoritmos implementados
 
-Avaliação
+### **1. Gonzalez (Farthest-First)**
+- Algoritmo guloso **2-aproximado** para **K-Centros**
+- Seleciona sempre o ponto mais distante do conjunto atual de centros
+- Simples, rápido e com garantia teórica
 
-Raio da solução (para K-Centros)
-Silhueta (qualidade de agrupamento)
-Índice de Rand Ajustado (ARI) (comparação com labels verdadeiros)
-Tempo de execução
+### **2. Refinamento de intervalo (Binary Search Refinement)**
+- Algoritmo **2-aproximado** para **K-Centros**
+- Usa busca binária no raio para encontrar uma solução viável
+- Mais estável e preciso em certos cenários
 
-Instalação
+### **3. K-Means**
+- Algoritmo clássico (baseline)
+- Comparado com os aproximados em qualidade e performance
 
-1. Clone o repositório
+---
 
+## Métricas de Distância Implementadas
+
+### **Minkowski**
+- Suporta qualquer valor de `p`
+- Casos importantes:
+  - `p = 1` → Distância Manhattan  
+  - `p = 2` → Distância Euclidiana  
+
+### **Mahalanobis**
+- Considera correlações entre atributos  
+- Ideal para clusters alongados / elípticos
+
+---
+
+## Avaliação
+
+| Métrica | Descrição |
+|--------|-----------|
+| **Raio da solução** | Usada para K-Centros |
+| **Silhueta** | Mede a qualidade dos clusters |
+| **ARI (Adjusted Rand Index)** | Compara com labels verdadeiros |
+| **Tempo de execução** | Medida de desempenho |
+
+---
+
+## Instalação
+
+### **1. Clone o repositório**
+```bash
 git clone https://github.com/adlerfurtado/2ApproximationAlgorithms/
 cd 2ApproximationAlgorithms/
-
-2. Crie um ambiente virtual (recomendado)
-
+```
+### **2. Crie um ambiente virtual (recomendado)**
+```bash
 python -m venv venv
-
-# Linux/Mac
+```
+Linux/Mac
+```bash
 source venv/bin/activate
-
-# Windows
+```
+Windows
+```bash
 venv\Scripts\activate
-
-3. Instale as dependências
-
+```
+### **3. Instale as dependências**
+```bash
 pip install -r requirements.txt
+```
 
-Como Executar
-
+## Como executar
+```bash
 python run_experiments.py
+```
 
-Saída: 
+## Saída dos experimentos
+Os resultados são gerados em resultados/:
+- resultados_completos.csv — Todos os resultados detalhados
+- resumo_por_dataset.csv — Médias agrupadas por dataset
+- resumo_por_tipo.csv — Médias por tipo de dataset
+- resumo_global.csv — Métricas agregadas
+- RESUMO.md — Relatório consolidado em Markdown
 
-resultados/resultados_completos.csv - Todos os resultados detalhados
+## Datasets utilizados
+### **Sintéticos (via sklearn — 30 datasets)**
+- Blobs (5 variações)
+- Moons (5 variações)
+- Circles (5 variações)
+- Varied (5 variações — variâncias diferentes)
+- Anisotropic (5 variações — deformados por transformação linear)
+- Uniform (5 variações)
 
-resultados/resumo_por_dataset.csv - Médias por dataset
-
-resultados/resumo_por_tipo.csv - Médias por tipo de dataset
-
-resultados/resumo_global.csv - Médias globais
-
-resultados/RESUMO.md - Relatório em Markdown
-
-Datasets Utilizados 
-
-Sintéticos (Implementados)
-
-Sklearn (30 datasets)
-
-Blobs (5 variações)
-Moons (5 variações)
-Circles (5 variações)
-Varied (5 variações)
-Anisotropic (5 variações)
-Uniform (5 variações)
-
-
-Normais Multivariadas (10 datasets)
-
-Clusters gaussianos com sobreposição controlada
-Formas elípticas e circulares
+### **Normais Multivariadas (10 datasets)**
+- Clusters gaussianos com:
+- Overlap controlado
+- Diferentes matrizes de covariância
+- Formatos circulares e elípticos
