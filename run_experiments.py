@@ -2,6 +2,7 @@ import os
 import csv
 import numpy as np
 import pandas as pd
+import psutil
 from kcenters.datasets import gerar_colecao_sklearn, gerar_normais_multivariadas
 from kcenters.experiments import rodar_experimento_unico
 
@@ -12,11 +13,21 @@ from uci_loader import carregar_datasets_uci
 N_RUNS = 15  # 15 execuções por dataset
 EPS_VALUES = [0.01, 0.05, 0.10, 0.15, 0.25]  # 1% a 25%
 
+# LIMITAÇÕES PARA EVITAR PROBLEMAS DE MEMÓRIA
+MAX_SAMPLES_UCI = 1000  # Máximo de exemplos por dataset UCI
+MAX_CLUSTERS_UCI = 5    # Máximo de clusters para datasets UCI
+
 METRICAS = [
     ('euclidiana', 2, None),      # Euclidiana
     ('minkowski', 1, None),       # Manhattan  
     ('mahalanobis', None, None),  # Mahalanobis
 ]
+
+def verificar_memoria():
+    """Retorna uso atual de memória em MB"""
+    process = psutil.Process()
+    mem_info = process.memory_info()
+    return mem_info.rss / 1024 / 1024  # Converter para MB
 
 def rodar_experimentos_completos(output_dir='resultados'):
     """Executa todos os experimentos conforme especificado"""
@@ -28,12 +39,14 @@ def rodar_experimentos_completos(output_dir='resultados'):
     print("=" * 60)
     print("INICIANDO EXPERIMENTOS - TP2 ALGORITMOS 2")
     print("=" * 60)
+    print(f"Memória inicial: {verificar_memoria():.1f} MB")
     
     # 1. Datasets sklearn (30 datasets)
     print("\n1. Gerando 30 datasets sklearn...")
     datasets_sklearn = gerar_colecao_sklearn(random_state=42)
     all_datasets.extend(datasets_sklearn)
     print(f"   ✓ Gerados {len(datasets_sklearn)} datasets sklearn")
+    print(f"   Memória atual: {verificar_memoria():.1f} MB")
     
     # 2. Datasets normais multivariadas (10 datasets)
     print("\n2. Gerando 10 datasets normais multivariadas...")
@@ -57,11 +70,16 @@ def rodar_experimentos_completos(output_dir='resultados'):
         }
         all_datasets.append((X, k, meta, y))
     print(f"   ✓ Gerados 10 datasets multivariados")
+    print(f"   Memória atual: {verificar_memoria():.1f} MB")
     
-    # 3. DATASETS UCI REAIS (10 datasets - CONFORME ESPECIFICAÇÃO)
+    # 3. DATASETS UCI REAIS (10 datasets - OTIMIZADO)
     print("\n3. Carregando 10 datasets UCI...")
+    print(f"   Limitações: max_samples={MAX_SAMPLES_UCI}, max_clusters={MAX_CLUSTERS_UCI}")
     try:
-        uci_datasets = carregar_datasets_uci()
+        uci_datasets = carregar_datasets_uci(
+            max_samples=MAX_SAMPLES_UCI,
+            max_clusters=MAX_CLUSTERS_UCI
+        )
         uci_count = 0
         
         for dataset in uci_datasets:
@@ -71,7 +89,8 @@ def rodar_experimentos_completos(output_dir='resultados'):
                 if X.shape[0] >= 700:
                     all_datasets.append((X, k, meta, y))
                     uci_count += 1
-                    print(f"   ✓ {meta.get('name', 'Unknown')} - {X.shape[0]} amostras, k={k}")
+                    mem_estimate = (X.shape[0] ** 2 * 8) / (1024 * 1024)  # Estimativa de memória para matriz de distâncias
+                    print(f"   ✓ {meta.get('name', 'Unknown')} - {X.shape[0]} amostras, k={k} (~{mem_estimate:.1f} MB para dist)")
                     
                     if uci_count >= 10:  # Limitar a 10 datasets UCI
                         break
@@ -79,6 +98,7 @@ def rodar_experimentos_completos(output_dir='resultados'):
                     print(f"   ✗ {meta.get('name', 'Unknown')} - apenas {X.shape[0]} amostras (mínimo: 700)")
         
         print(f"   ✓ Total datasets UCI carregados: {uci_count}")
+        print(f"   Memória atual: {verificar_memoria():.1f} MB")
         
         if uci_count < 10:
             print(f"   ⚠️  AVISO: Apenas {uci_count} datasets UCI foram carregados (esperado: 10)")
@@ -91,6 +111,7 @@ def rodar_experimentos_completos(output_dir='resultados'):
     print(f"  - {len(datasets_sklearn)} datasets sklearn")
     print(f"  - 10 datasets multivariados") 
     print(f"  - {len([d for d in all_datasets if 'uci' in str(d[2].get('tipo', ''))])} datasets UCI")
+    print(f"Memória antes de iniciar experimentos: {verificar_memoria():.1f} MB")
     
     # Arquivo de resultados
     csv_path = os.path.join(output_dir, 'resultados_completos.csv')
@@ -111,14 +132,22 @@ def rodar_experimentos_completos(output_dir='resultados'):
             
             print(f"\n[{idx+1}/{len(all_datasets)}] Processando: {dataset_name}")
             print(f"   Shape: {X.shape}, k={k}")
+            mem_antes = verificar_memoria()
+            print(f"   Memória antes: {mem_antes:.1f} MB")
             
             for metric_name, p, cov_param in METRICAS:
                 print(f"   Métrica: {metric_name}", end="")
                 
                 # Configurar parâmetros da métrica
                 if metric_name == 'mahalanobis':
-                    cov = np.cov(X, rowvar=False)
-                    p_val = ''
+                    try:
+                        cov = np.cov(X, rowvar=False)
+                        # Verificar se a matriz é inversível
+                        cov_inv = np.linalg.inv(cov)
+                        p_val = ''
+                    except np.linalg.LinAlgError:
+                        print(" - ✗ Matriz de covariância singular, pulando...")
+                        continue
                 else:
                     cov = None
                     p_val = p
@@ -149,10 +178,17 @@ def rodar_experimentos_completos(output_dir='resultados'):
                 except Exception as e:
                     print(f" - ✗ Erro: {e}")
                     continue
+            
+            mem_depois = verificar_memoria()
+            print(f"   Memória depois: {mem_depois:.1f} MB (delta: {mem_depois - mem_antes:+.1f} MB)")
+            
+            # Flush do arquivo a cada dataset
+            f.flush()
     
     print(f"\n{'='*60}")
     print("EXPERIMENTOS CONCLUÍDOS!")
     print(f"Resultados salvos em: {csv_path}")
+    print(f"Memória final: {verificar_memoria():.1f} MB")
     print(f"{'='*60}")
     
     # Gerar resumos estatísticos
