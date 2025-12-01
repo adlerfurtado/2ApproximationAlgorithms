@@ -3,8 +3,7 @@ from sklearn import datasets as sk_datasets
 
 
 def gerar_colecao_sklearn(random_state=0):
-    """Gera vários tipos de datasets seguindo os exemplos do sklearn.
-    Retorna lista de tuplas (X, k, meta, y)
+    """Gera vários tipos de datasets. Retorna lista de tuplas (X, k, meta, y).
     """
     res = []
     rng = np.random.RandomState(random_state)

@@ -1,0 +1,136 @@
+ ANÁLISE PARA RELATÓRIO IEEE - TP2 ALGORITMOS 2
+================================================================================
+ ANÁLISE COMPARATIVA AVANÇADA - FORMATO IEEE
+================================================================================
+
+1. ESTATÍSTICAS GERAIS DA EXPERIMENTAÇÃO
+--------------------------------------------------
+   • Total de execuções: 15,750
+   • Datasets: 50
+   • Tipos de datasets: blobs, moons, circles, varied, anisotropic, uniform, mvnorm, uci
+   • Combinações testadas: 3 algoritmos × 3 métricas
+   • Execuções por combinação: 15
+
+2. COMPARAÇÃO ENTRE ALGORITMOS (Tabela Principal)
+------------------------------------------------------------
+Algoritmo       | Raio Médio  | Silhueta Média | ARI Médio   | Tempo Médio (s)
+-------------------------------------------------------------------------------------
+gonzalez        | 19216.5404 ± 160645.2203 |   0.4364 ± 0.2605 | 0.2722 ± 0.5278 |   0.0001 ± 0.0002
+intervalo       | 19166.8522 ± 158587.2036 |   0.4053 ± 0.4420 | 0.2625 ± 0.5287 |   0.0009 ± 0.0006
+kmeans          | 28765.1178 ± 192760.5427 |   0.5535 ± 0.1794 | 0.3994 ± 0.5929 |   0.0773 ± 0.0195
+
+3. EFEITO DO PARÂMETRO ε NO REFINAMENTO
+------------------------------------------------------------
+ε    | Raio Médio  | Silhueta Média | Tempo Médio (s)
+-------------------------------------------------------
+0.01 | 19035.9824 ± 158609.2058 |     0.4651 ± 0.2774 |   0.0012 ± 0.0008
+0.05 | 19036.6173 ± 158609.1345 |     0.4471 ± 0.3389 |   0.0010 ± 0.0006
+ 0.1 | 19216.8105 ± 158618.5803 |     0.4459 ± 0.3635 |   0.0009 ± 0.0005
+0.15 | 19218.3291 ± 158618.4090 |     0.3672 ± 0.5144 |   0.0008 ± 0.0004
+0.25 | 19326.5219 ± 158621.5004 |     0.3010 ± 0.6076 |   0.0007 ± 0.0005
+
+4. COMPARAÇÃO ENTRE MÉTRICAS DE DISTÂNCIA
+------------------------------------------------------------
+Métrica    | Raio Médio  | Silhueta Média | Tempo Médio (s)
+-----------------------------------------------------------------
+euclidiana | 28525.3633 ± 193050.9673 |     0.5106 ± 0.3017 |   0.0118 ± 0.0280
+minkowski  | 28997.1295 ± 194492.8795 |     0.5032 ± 0.3126 |   0.0118 ± 0.0279
+mahalanobis | 4112.9012 ± 73539.4395 |     0.2788 ± 0.4959 |   0.0116 ± 0.0274
+
+5. DESEMPENHO POR TIPO DE DATASET
+------------------------------------------------------------
+   • blobs          :
+        Melhor algoritmo: intervalo (Silhueta: 0.5113)
+        Melhor métrica: minkowski (Silhueta: 0.5103)
+        N° datasets: 5
+   • moons          :
+        Melhor algoritmo: kmeans (Silhueta: 0.4767)
+        Melhor métrica: euclidiana (Silhueta: 0.4443)
+        N° datasets: 5
+   • circles        :
+        Melhor algoritmo: gonzalez (Silhueta: 0.3128)
+        Melhor métrica: mahalanobis (Silhueta: 0.0085)
+        N° datasets: 5
+   • mvnorm         :
+        Melhor algoritmo: kmeans (Silhueta: 0.6488)
+        Melhor métrica: euclidiana (Silhueta: 0.6195)
+        N° datasets: 10
+   • uci            :
+        Melhor algoritmo: kmeans (Silhueta: 0.5787)
+        Melhor métrica: euclidiana (Silhueta: 0.5680)
+        N° datasets: 10
+
+6. SIGNIFICÂNCIA ESTATÍSTICA (Teste t de Student)
+------------------------------------------------------------
+   Comparação de Silhueta entre algoritmos:
+      gonzalez vs intervalo: p = 0.001254 **
+      gonzalez vs kmeans: p = 0.000000 ***
+      intervalo vs kmeans: p = 0.000000 ***
+
+7. PRINCIPAIS INSIGHTS PARA O RELATÓRIO
+------------------------------------------------------------
+   • Algoritmo com melhor Silhueta geral: kmeans (0.5535)
+   • Algoritmo mais rápido: gonzalez (0.0001s)
+   • Melhor métrica geral: euclidiana (0.5106)
+   • EPS ideal para refinamento: 0.01 (0.4651)
+
+================================================================================
+ CÓDIGO LATEX PARA AS TABELAS DO RELATÓRIO
+================================================================================
+
+% --- TABELA 1: COMPARAÇÃO ENTRE ALGORITMOS ---
+\begin{table}[htbp]
+\caption{Desempenho médio dos algoritmos avaliados}
+\label{tab:comparacao-algoritmos}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+Algoritmo & Raio Médio & Silhueta Média & ARI Médio & Tempo Médio (s) \\
+\hline
+Gonzalez & 19216.5404 & 0.4364 & 0.2722 & 0.0001 \\
+Refinamento & 19166.8522 & 0.4053 & 0.2625 & 0.0009 \\
+K-Means & 28765.1178 & 0.5535 & 0.3994 & 0.0773 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+% --- TABELA 2: EFEITO DO PARÂMETRO ε ---
+\begin{table}[htbp]
+\caption{Impacto do parâmetro $\varepsilon$ no algoritmo de refinamento}
+\label{tab:efeito-epsilon}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$\varepsilon$ & Raio Médio & Silhueta Média & Tempo Médio (s) \\
+\hline
+0.01 & 19035.9824 & 0.4651 & 0.0012 \\
+0.05 & 19036.6173 & 0.4471 & 0.001 \\
+0.1 & 19216.8105 & 0.4459 & 0.0009 \\
+0.15 & 19218.3291 & 0.3672 & 0.0008 \\
+0.25 & 19326.5219 & 0.301 & 0.0007 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+% --- TABELA 3: COMPARAÇÃO ENTRE MÉTRICAS ---
+\begin{table}[htbp]
+\caption{Desempenho por métrica de distância}
+\label{tab:comparacao-metricas}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Métrica & Raio Médio & Silhueta Média & Tempo Médio (s) \\
+\hline
+Euclidiana & 28525.3633 & 0.5106 & 0.0118 \\
+Manhattan & 28997.1295 & 0.5032 & 0.0118 \\
+Mahalanobis & 4112.9012 & 0.2788 & 0.0116 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+===================
+ ANÁLISE CONCLUÍDA! 
+===================

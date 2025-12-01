@@ -1,7 +1,7 @@
 import numpy as np
 
 def gonzalez_kcenters(X, k, dist_matrix=None):
-    """Algoritmo de Gonzalez (farthest-first) - 2-aproximado"""
+    #Algoritmo de Gonzalez (farthest-first)
     n = X.shape[0]
     
     if dist_matrix is None:

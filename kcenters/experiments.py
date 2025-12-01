@@ -73,7 +73,7 @@ def rodar_experimento_unico(
         # Configurar seed para reprodutibilidade
         np.random.seed(run * 42)
         
-        # --- Algoritmo de Gonzalez ---
+        # Algoritmo de Gonzalez
         start_time = time.perf_counter()
         try:
             centers_gonzalez, radius_gonzalez = gonzalez_kcenters(X, k, D)
@@ -140,6 +140,6 @@ def rodar_experimento_unico(
                 'tempo': end_time - start_time,
             })
         except Exception as e:
-            print(f"      Erro no K-Means - run {run}: {e}")
+            print(f"Erro no K-Means - run {run}: {e}")
     
     return results
